@@ -1,0 +1,14 @@
+{
+  "name": "mate_nagy1/homework3_base",
+  "require": {
+    "php": ">=7.3",
+    "symfony/dependency-injection": "^4.3",
+    "symfony/config": "^4.3",
+    "ext-pdo": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Homework3\\": "src/"
+    }
+  }
+}
