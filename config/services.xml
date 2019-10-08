@@ -8,7 +8,9 @@
     </parameters>
 
     <services>
+        <defaults autowire="true" autoconfigure="true" public="false"/>
         <service id="sample_service" class="Homework3\Sample\SampleService">
+            <argument type="service" id="1"/>
         </service>
 
         <service id="handle_expense" class="Homework3\Service\HandleExpense">

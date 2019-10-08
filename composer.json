@@ -4,7 +4,8 @@
     "php": ">=7.3",
     "symfony/dependency-injection": "^4.3",
     "symfony/config": "^4.3",
-    "ext-pdo": "*"
+    "ext-pdo": "*",
+    "twig/twig": "*"
   },
   "autoload": {
     "psr-4": {

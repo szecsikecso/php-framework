@@ -1,0 +1,14 @@
+RewriteEngine On
+
+Options Indexes FollowSymLinks
+
+RewriteBase /
+
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteCond %{REQUEST_FILENAME} !-f
+
+RewriteCond %{REQUEST_URI} !^/web/
+#RewriteCond %{REQUEST_URI} ^/$
+RewriteRule ^(.*)$ /web/$1 [L]
+
+# RewriteRule ^(.+)$ index.php/$1 [L]
