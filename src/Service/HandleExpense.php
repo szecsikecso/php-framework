@@ -15,6 +15,7 @@ class HandleExpense
     public function __construct()
     {
         $pdo = new \PDO("mysql:dbname=mydb;host=localhost", "root", "" );
+        $pdo->setAttribute( \PDO::ATTR_CASE, \PDO::CASE_NATURAL );
         $this->databaseConnection = $pdo;
     }
 
@@ -49,7 +50,7 @@ class HandleExpense
 
     private function readCurrencyValue(string $currency)
     {
-        $sql = "SELECT " . CurrencyValue::CURRENCY_VALUE_FIELD_VALUE_IN_HUF.
+        $sql = "SELECT " . CurrencyValue::CURRENCY_VALUE_FIELD_VALUE_IN_HUF . " AS valueInHuf" .
             " FROM " . CurrencyValue::CURRENCY_VALUE_TABLE .
             " WHERE " . CurrencyValue::CURRENCY_VALUE_FIELD_CURRENCY . "=?" . " LIMIT 1";
         $statement = $this->databaseConnection->prepare($sql);

@@ -12,12 +12,18 @@ class CurrencyValue
     public const CURRENCY_VALUE_FIELD_CURRENCY = 'currency';
     public const CURRENCY_VALUE_FIELD_VALUE_IN_HUF = 'value_in_huf';
 
-    private $currency = 'HUF';
+    private $currency = '';
 
-    private $valueInHuf = 1;
+    private $valueInHuf = 0;
 
-    public function __construct()
+    public function __construct($currency = '', $valueInHuf = 0)
     {
+        if ($currency != '') {
+            $this->currency = $currency;
+        }
+        if ($valueInHuf != '') {
+            $this->valueInHuf = $valueInHuf;
+        }
     }
 
     /**
