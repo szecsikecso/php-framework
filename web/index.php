@@ -21,26 +21,25 @@ $containerBuilder->compile();
 //echo $sampleService->sample(). "\n";
 //echo $sampleParam;
 
+$controller = new \Homework3\Controller\IndexController();
+if (!empty($_SERVER['QUERY_STRING'])) {
+    $controller->handle400();
+}
+
 if (isset($_SERVER['PATH_INFO'])) {
-    $path= $_SERVER['PATH_INFO'];
-//    print_r($_SERVER);
-    echo $path . "<br>";
+    $path = $_SERVER['PATH_INFO'];
     $path_split = explode('/', ltrim($path));
-    print_r($path_split);
-    echo "<br>";
-
-    $controller = new \Homework3\Controller\IndexController();
-
-    echo $path_split[count($path_split)-1];
-
-//    if (strpos($_SERVER['QUERY_STRING'], '%%') ||  strpos($_SERVER['QUERY_STRING'], '}')) {
-//    }
 
     foreach ($path_split as $key => $path_item) {
         if ($key == 1) {
             echo '<br><b>1</b><br>';
             if ($path_item == 'expense') {
-                $controller = new \Homework3\Controller\ExpenseController();
+                if (!isset($_SESSION)) {
+                    // User should be logged in to go on expense page(s)
+                    $controller->handle401();
+                } else {
+                    $controller = new \Homework3\Controller\ExpenseController();
+                }
             } else {
                 $controller->handle404();
             }
@@ -52,4 +51,10 @@ if (isset($_SERVER['PATH_INFO'])) {
 
 } else {
     $path_split = '/';
+    
+    if ($_SERVER['REQUEST_METHOD'] != 'GET') {
+        $controller->handle405();
+    } else {
+        $controller->index();
+    }
 }
