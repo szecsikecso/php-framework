@@ -18,6 +18,8 @@ class Expense
     {
     }
 
+    private $id;
+
     /** @var int $amount */
     private $amount;
 
@@ -96,6 +98,22 @@ class Expense
     public function setDescription(string $description): void
     {
         $this->description = $description;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param mixed $id
+     */
+    public function setId($id): void
+    {
+        $this->id = $id;
     }
 
 }

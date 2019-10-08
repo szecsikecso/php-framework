@@ -22,30 +22,58 @@ class HandleExpense
     public function addExpense(int $amount, string $currency, string $description)
     {
         try {
-//            $this->databaseConnection->beginTransaction();
+            $this->databaseConnection->beginTransaction();
 
             $currencyValue = $this->readCurrencyValue($currency);
             $this->writeExpense($amount, $currencyValue, $description);
 
-//            $this->databaseConnection->commit();
+            $this->databaseConnection->commit();
+
+            $this->databaseConnection->rollBack();
         } catch (\Exception $e) {
             echo $e->getMessage();
-            echo 'error';
-//            $this->databaseConnection->rollBack();
+
+            $this->databaseConnection->rollBack();
         }
 
-        echo $this->databaseConnection->lastInsertId();
-        print_r($this->databaseConnection->errorInfo());
+        echo 'Last ID: ' . $this->databaseConnection->lastInsertId();
     }
 
-    public function updateExpense(Expense $expense)
+    public function updateExpense(Expense $oldExpense, Expense $newExpense)
     {
+        try {
+            $this->databaseConnection->beginTransaction();
 
+            if ($oldExpense->getAmount() != $newExpense->getAmount()) {
+                $hufValue = $oldExpense->getAmountInHuf() / $oldExpense->getAmount();
+
+                $newExpense->setAmountInHuf($newExpense->getAmount() * $hufValue);
+            }
+
+            $this->modifyExpense($newExpense);
+
+            $this->databaseConnection->commit();
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+
+            $this->databaseConnection->rollBack();
+        }
     }
 
     public function deleteExpense(Expense $expense)
     {
+        try {
+            $this->databaseConnection->beginTransaction();
 
+            $statement = $this->databaseConnection->prepare("DELETE FROM " . Expense::EXPENSE_TABLE . "WHERE id=?");
+            $statement->execute([$expense->getId()]);
+
+            $this->databaseConnection->commit();
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+
+            $this->databaseConnection->rollBack();
+        }
     }
 
     private function readCurrencyValue(string $currency)
@@ -80,6 +108,19 @@ class HandleExpense
         echo $this->databaseConnection->lastInsertId();
 
         echo $message . "\n";
+    }
+
+    private function modifyExpense(Expense $expense)
+    {
+        $sql = "UPDATE" . Expense::EXPENSE_TABLE . " SET " .
+    Expense::EXPENSE_FIELD_AMOUNT . "=?, " .
+    Expense::EXPENSE_FIELD_AMOUNT_IN_HUF . "=?, " .
+    Expense::EXPENSE_FIELD_CURRENCY . "=?, " .
+    Expense::EXPENSE_FIELD_DESCRIPTION . "=?, " .
+    "WHERE id=?";
+        $statement = $this->databaseConnection->prepare($sql);
+        $message = $statement->execute([$expense->getAmount(), $expense->getAmountInHuf(),
+            $expense->getCurrency(), $expense->getDescription(), $expense->getId()]);
     }
 
 }

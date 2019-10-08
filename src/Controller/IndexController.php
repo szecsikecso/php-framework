@@ -14,15 +14,15 @@ class IndexController
 
     public function __construct()
     {
-        $this->indexTwig = new Environment(new FilesystemLoader('../views/index'));
+        $this->indexTwig = new Environment(new FilesystemLoader('../views'));
     }
 
     public function index() {
-        echo $this->indexTwig->render('index.html.twig', ['hello' => 'world']);
+        echo $this->indexTwig->render('index/index.html.twig', ['hello' => 'world']);
     }
 
     public function handleOperation(string $operation) {
-        echo $this->indexTwig->render('index.html.twig', ['operation' => $operation]);
+        echo $this->indexTwig->render('index/index.html.twig', ['operation' => $operation]);
     }
 
     public function handle400() {

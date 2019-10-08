@@ -1,4 +1,8 @@
-Expense index
-{% if operation is defined %}
-    Or expense operation - {{ operation }}
-{% endif %}
+{% extends "./../template/basic.template.html.twig" %}
+
+{% block content %}
+    Expense index
+    {% if operation is defined %}
+        Or expense operation - {{ operation }}
+    {% endif %}
+{% endblock %}

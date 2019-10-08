@@ -51,7 +51,7 @@ if (isset($_SERVER['PATH_INFO'])) {
 
 } else {
     $path_split = '/';
-    
+
     if ($_SERVER['REQUEST_METHOD'] != 'GET') {
         $controller->handle405();
     } else {
