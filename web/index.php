@@ -39,7 +39,10 @@ if (isset($_SERVER['PATH_INFO'])) {
                     $controller->handle401();
                 } else {
                     $controller = new \Homework3\Controller\ExpenseController();
-                    $controller->index();
+
+                    if (!isset($path_split[2])){
+                        $controller->index();
+                    }
                 }
             } else {
                 $controller->handle404();

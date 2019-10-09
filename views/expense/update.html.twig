@@ -1,0 +1,45 @@
+{% extends "template/basic.template.html.twig" %}
+
+{% block content %}
+    {# Update Expense #}
+    {% if response is defined %}
+        {% if response.success is defined %}
+            <div class="success-message">Expense updated!</div>
+        {% else %}
+            {{ dump(response) }}
+        {% endif %}
+    {% endif %}
+    <div class="row justify-content-center">
+        <form action="" method="POST" >
+            <div class="form-group">
+                <label for="amount">Amount</label>
+                <input class="form-control" type="number" name="amount" required value="{{ expense.amount }}">
+            </div>
+
+            <div class="form-group">
+                <label class="d-none" for="amountInHuf">Amount in HUF</label>
+                <input class="form-control" type="hidden" name="amountInHuf" value="{{ expense.amountInHuf }}">
+            </div>
+
+            <div class="form-group">
+                <label for="currency">Currency</label>
+                <select class="form-control" name="currency" value="{{ expense.currency }}">
+                    <option name="HUF">HUF</option>
+                    <option name="EUR">EUR</option>
+                    <option name="GBP">GBP</option>
+                    <option name="CHF">CHF</option>
+                    <option name="USD">USD</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input class="form-control" type="text" name="description" value="{{ expense.description }}">
+            </div>
+
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit" name="submit">Update</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

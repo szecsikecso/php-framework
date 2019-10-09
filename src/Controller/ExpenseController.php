@@ -71,16 +71,32 @@ class ExpenseController
     }
 
     private function update($expense_id) {
+        /** @var Expense $expense */
         $expense = $this->expenseService->readExpense($expense_id);
-        if (isset($_POST)) {
-            $this->expenseService->updateExpense($expense, $expense);
+        var_dump($expense);
+        if (isset($_POST) && !empty($_POST)) {
+            var_dump($_POST);
+            $amount = strip_tags($_POST['amount']);
+            $currency = strip_tags($_POST['currency']);
+            $description = strip_tags($_POST['description']);
+
+            $newExpense = clone($expense);
+            $newExpense->setAmount($amount);
+            $newExpense->setCurrency($currency);
+            $newExpense->setDescription($description);
+
+            $response = $this->expenseService->updateExpense($expense, $newExpense);
+            echo $this->expenseTwig->render('expense/update.html.twig', ['response' => $response, 'expense' => $expense]);
         } else {
             echo $this->expenseTwig->render('expense/update.html.twig', ['expense' => $expense]);
         }
     }
 
     private function delete($expense_id) {
-        $this->expenseService->deleteExpense($expense_id);
+        $response = $this->expenseService->deleteExpense($expense_id);
+
+        $expenses = $this->expenseService->readAllExpense();
+        echo $this->expenseTwig->render('expense/index.html.twig', ['response' => $response, 'expenses' => $expenses]);
     }
 
 }

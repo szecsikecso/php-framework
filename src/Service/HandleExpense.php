@@ -10,17 +10,25 @@ use Homework3\Entity\Expense;
 class HandleExpense
 {
 
+    /**
+     * @var \PDO $databaseConnection
+     */
     private $databaseConnection;
 
     public function __construct()
     {
-        $pdo = new \PDO("mysql:dbname=mydb;host=localhost", "root", "" );
-        $pdo->setAttribute( \PDO::ATTR_CASE, \PDO::CASE_NATURAL );
+        $pdo = new \PDO("mysql:dbname=mydb;host=localhost", "root", "");
+        $pdo->setAttribute(\PDO::ATTR_CASE, \PDO::CASE_NATURAL);
         $this->databaseConnection = $pdo;
     }
 
-    public function readExpense(int $id) {
-        $sql = "SELECT " . Expense::EXPENSE_FIELD_AMOUNT . ", " .
+    /**
+     * @param int $id
+     * @return Expense
+     */
+    public function readExpense(int $id): Expense
+    {
+        $sql = "SELECT id, " . Expense::EXPENSE_FIELD_AMOUNT . ", " .
             Expense::EXPENSE_FIELD_AMOUNT_IN_HUF . " AS amountInHuf, " .
             Expense::EXPENSE_FIELD_CURRENCY . ", " . Expense::EXPENSE_FIELD_DESCRIPTION .
             " FROM " . Expense::EXPENSE_TABLE .
@@ -30,11 +38,15 @@ class HandleExpense
         $message = $statement->execute([$id]);
         echo $message . " ";
 
-        return $statement->fetchObject(Expense::class, [$id]);
+        return $statement->fetchObject(Expense::class);
     }
 
-    public function readAllExpense() {
-        $sql = "SELECT " . Expense::EXPENSE_FIELD_AMOUNT . ", " .
+    /**
+     * @return array
+     */
+    public function readAllExpense(): array
+    {
+        $sql = "SELECT id, " . Expense::EXPENSE_FIELD_AMOUNT . ", " .
             Expense::EXPENSE_FIELD_AMOUNT_IN_HUF . " AS amountInHuf, " .
             Expense::EXPENSE_FIELD_CURRENCY . ", " . Expense::EXPENSE_FIELD_DESCRIPTION .
             " FROM " . Expense::EXPENSE_TABLE;
@@ -48,7 +60,13 @@ class HandleExpense
         return $statement->fetchAll(\PDO::FETCH_CLASS, Expense::class);
     }
 
-    public function addExpense(int $amount, string $currency, string $description)
+    /**
+     * @param int $amount
+     * @param string $currency
+     * @param string $description
+     * @return array
+     */
+    public function addExpense(int $amount, string $currency, string $description): array
     {
         $response = $this->validateExpense($amount, $currency, $description);
 
@@ -74,35 +92,61 @@ class HandleExpense
         return $response;
     }
 
-    public function updateExpense(Expense $oldExpense, Expense $newExpense)
+    /**
+     * @param Expense $oldExpense
+     * @param Expense $newExpense
+     * @return array
+     */
+    public function updateExpense(Expense $oldExpense, Expense $newExpense): array
     {
-        try {
-            $this->databaseConnection->beginTransaction();
+        $response = $this->validateExpense(
+            $newExpense->getAmount(),
+            $newExpense->getCurrency(),
+            $newExpense->getDescription()
+        );
 
-            if ($oldExpense->getAmount() != $newExpense->getAmount()) {
-                $hufValue = $oldExpense->getAmountInHuf() / $oldExpense->getAmount();
+        if (!$response) {
+            try {
+                $this->databaseConnection->beginTransaction();
 
-                $newExpense->setAmountInHuf($newExpense->getAmount() * $hufValue);
+                if ($oldExpense->getAmount() != $newExpense->getAmount()) {
+                    $hufValue = $oldExpense->getAmountInHuf() / $oldExpense->getAmount();
+
+                    $newExpense->setAmountInHuf($newExpense->getAmount() * $hufValue);
+                }
+
+                var_dump($oldExpense);
+                var_dump($newExpense);
+
+                $this->modifyExpense($newExpense);
+
+                $response['success'] = true;
+
+                $this->databaseConnection->commit();
+            } catch (\Exception $e) {
+                echo $e->getMessage();
+
+                $this->databaseConnection->rollBack();
             }
-
-            $this->modifyExpense($newExpense);
-
-            $this->databaseConnection->commit();
-        } catch (\Exception $e) {
-            echo $e->getMessage();
-
-            $this->databaseConnection->rollBack();
         }
+
+        return $response;
     }
 
-    public function deleteExpense(int $expense_id)
+    /**
+     * @param int $expense_id
+     * @return array
+     */
+    public function deleteExpense(int $expense_id): array
     {
         try {
             $this->databaseConnection->beginTransaction();
 
             $statement = $this->databaseConnection->prepare(
-                "DELETE FROM " . Expense::EXPENSE_TABLE . "WHERE id=?");
+                "DELETE FROM " . Expense::EXPENSE_TABLE . " WHERE id=?");
             $statement->execute([$expense_id]);
+
+            var_dump($statement->errorInfo());
 
             $this->databaseConnection->commit();
         } catch (\Exception $e) {
@@ -110,9 +154,17 @@ class HandleExpense
 
             $this->databaseConnection->rollBack();
         }
+
+        return ['success' => true];
     }
 
-    private function validateExpense(int $amount, string $currency, string $description)
+    /**
+     * @param int $amount
+     * @param string $currency
+     * @param string $description
+     * @return array
+     */
+    private function validateExpense(int $amount, string $currency, string $description): array
     {
         $errors = [];
         if (!is_numeric($amount)) {
@@ -131,7 +183,11 @@ class HandleExpense
         return $errors;
     }
 
-    private function readCurrencyValue(string $currency)
+    /**
+     * @param string $currency
+     * @return CurrencyValue
+     */
+    private function readCurrencyValue(string $currency): CurrencyValue
     {
         $sql = "SELECT " . CurrencyValue::CURRENCY_VALUE_FIELD_VALUE_IN_HUF . " AS valueInHuf" .
             " FROM " . CurrencyValue::CURRENCY_VALUE_TABLE .
@@ -144,7 +200,12 @@ class HandleExpense
         return $statement->fetchObject(CurrencyValue::class, [$currency]);
     }
 
-    private function writeExpense(int $amount, CurrencyValue $currencyValue, string $description)
+    /**
+     * @param int $amount
+     * @param CurrencyValue $currencyValue
+     * @param string $description
+     */
+    private function writeExpense(int $amount, CurrencyValue $currencyValue, string $description): void
     {
         var_dump($currencyValue);
         $amountInHuF = $amount;
@@ -165,17 +226,23 @@ class HandleExpense
         echo $message . "\n";
     }
 
-    private function modifyExpense(Expense $expense)
+    /**
+     * @param Expense $expense
+     */
+    private function modifyExpense(Expense $expense): void
     {
-        $sql = "UPDATE" . Expense::EXPENSE_TABLE . " SET " .
-    Expense::EXPENSE_FIELD_AMOUNT . "=?, " .
-    Expense::EXPENSE_FIELD_AMOUNT_IN_HUF . "=?, " .
-    Expense::EXPENSE_FIELD_CURRENCY . "=?, " .
-    Expense::EXPENSE_FIELD_DESCRIPTION . "=?, " .
-    "WHERE id=?";
+        $sql = "UPDATE " . Expense::EXPENSE_TABLE . " SET " .
+            Expense::EXPENSE_FIELD_AMOUNT . "=?, " .
+            Expense::EXPENSE_FIELD_AMOUNT_IN_HUF . "=?, " .
+            Expense::EXPENSE_FIELD_CURRENCY . "=?, " .
+            Expense::EXPENSE_FIELD_DESCRIPTION . "=? " .
+            "WHERE id=?";
         $statement = $this->databaseConnection->prepare($sql);
         $message = $statement->execute([$expense->getAmount(), $expense->getAmountInHuf(),
-            $expense->getCurrency(), $expense->getDescription(), $expense->getId()]);
-    }
+            $expense->getCurrency(), $expense->getDescription(), (int)$expense->getId()]);
 
+        var_dump($statement->errorInfo());
+
+        echo $message . "\n";
+    }
 }
