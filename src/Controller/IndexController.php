@@ -21,24 +21,24 @@ class IndexController
         echo $this->indexTwig->render('index/index.html.twig', ['hello' => 'world']);
     }
 
-    public function handleOperation(string $operation) {
+    public function handleOperation(string $operation, $id = 0) {
         echo $this->indexTwig->render('index/index.html.twig', ['operation' => $operation]);
     }
 
     public function handle400() {
-        echo $this->indexTwig->render('error.html.twig', ['error_code' => 400]);
+        echo $this->indexTwig->render('index/error.html.twig', ['error_code' => 400]);
     }
 
     public function handle401() {
-        echo $this->indexTwig->render('error.html.twig', ['error_code' => 401]);
+        echo $this->indexTwig->render('index/error.html.twig', ['error_code' => 401]);
     }
 
     public function handle404() {
-        echo $this->indexTwig->render('error.html.twig', ['error_code' => 404]);
+        echo $this->indexTwig->render('index/error.html.twig', ['error_code' => 404]);
     }
 
     public function handle405() {
-        echo $this->indexTwig->render('error.html.twig', ['error_code' => 405]);
+        echo $this->indexTwig->render('index/error.html.twig', ['error_code' => 405]);
     }
 
 }

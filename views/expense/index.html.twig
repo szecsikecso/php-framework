@@ -1,8 +1,9 @@
-{% extends "./../template/basic.template.html.twig" %}
+{% extends "template/basic.template.html.twig" %}
 
 {% block content %}
     Expense index
     {% if operation is defined %}
         Or expense operation - {{ operation }}
     {% endif %}
+    {{ dump(expenses) }}
 {% endblock %}

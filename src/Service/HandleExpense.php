@@ -19,24 +19,59 @@ class HandleExpense
         $this->databaseConnection = $pdo;
     }
 
+    public function readExpense(int $id) {
+        $sql = "SELECT " . Expense::EXPENSE_FIELD_AMOUNT . ", " .
+            Expense::EXPENSE_FIELD_AMOUNT_IN_HUF . " AS amountInHuf, " .
+            Expense::EXPENSE_FIELD_CURRENCY . ", " . Expense::EXPENSE_FIELD_DESCRIPTION .
+            " FROM " . Expense::EXPENSE_TABLE .
+            " WHERE " . 'id' . "=?" . " LIMIT 1";
+        $statement = $this->databaseConnection->prepare($sql);
+
+        $message = $statement->execute([$id]);
+        echo $message . " ";
+
+        return $statement->fetchObject(Expense::class, [$id]);
+    }
+
+    public function readAllExpense() {
+        $sql = "SELECT " . Expense::EXPENSE_FIELD_AMOUNT . ", " .
+            Expense::EXPENSE_FIELD_AMOUNT_IN_HUF . " AS amountInHuf, " .
+            Expense::EXPENSE_FIELD_CURRENCY . ", " . Expense::EXPENSE_FIELD_DESCRIPTION .
+            " FROM " . Expense::EXPENSE_TABLE;
+        $statement = $this->databaseConnection->prepare($sql);
+
+        $message = $statement->execute([]);
+        var_dump($statement->errorInfo());
+        echo $message . " ";
+
+        //return $statement->fetchObject(Expense::class, []);
+        return $statement->fetchAll(\PDO::FETCH_CLASS, Expense::class);
+    }
+
     public function addExpense(int $amount, string $currency, string $description)
     {
-        try {
-            $this->databaseConnection->beginTransaction();
+        $response = $this->validateExpense($amount, $currency, $description);
 
-            $currencyValue = $this->readCurrencyValue($currency);
-            $this->writeExpense($amount, $currencyValue, $description);
+        if (empty($response)) {
+            try {
+                $this->databaseConnection->beginTransaction();
 
-            $this->databaseConnection->commit();
+                $currencyValue = $this->readCurrencyValue($currency);
+                $this->writeExpense($amount, $currencyValue, $description);
 
-            $this->databaseConnection->rollBack();
-        } catch (\Exception $e) {
-            echo $e->getMessage();
+                $response['success'] = true;
 
-            $this->databaseConnection->rollBack();
+                $this->databaseConnection->commit();
+            } catch (\Exception $e) {
+                echo $e->getMessage();
+
+                $this->databaseConnection->rollBack();
+            }
         }
 
         echo 'Last ID: ' . $this->databaseConnection->lastInsertId();
+
+        return $response;
     }
 
     public function updateExpense(Expense $oldExpense, Expense $newExpense)
@@ -60,13 +95,14 @@ class HandleExpense
         }
     }
 
-    public function deleteExpense(Expense $expense)
+    public function deleteExpense(int $expense_id)
     {
         try {
             $this->databaseConnection->beginTransaction();
 
-            $statement = $this->databaseConnection->prepare("DELETE FROM " . Expense::EXPENSE_TABLE . "WHERE id=?");
-            $statement->execute([$expense->getId()]);
+            $statement = $this->databaseConnection->prepare(
+                "DELETE FROM " . Expense::EXPENSE_TABLE . "WHERE id=?");
+            $statement->execute([$expense_id]);
 
             $this->databaseConnection->commit();
         } catch (\Exception $e) {
@@ -74,6 +110,25 @@ class HandleExpense
 
             $this->databaseConnection->rollBack();
         }
+    }
+
+    private function validateExpense(int $amount, string $currency, string $description)
+    {
+        $errors = [];
+        if (!is_numeric($amount)) {
+            $errors['amount'] = 'Not valid number!';
+        }
+        if (strlen($currency) != 3) {
+            $errors['currency'] = 'Not valid currency code!';
+        }
+
+        if (strlen($description) == 0) {
+            $errors['description'] = 'Empty description!';
+        } else if (strlen($description) > 250) {
+            $errors['description'] = 'Too long description!';
+        }
+
+        return $errors;
     }
 
     private function readCurrencyValue(string $currency)
