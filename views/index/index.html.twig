@@ -1,5 +1,19 @@
 {% extends "template/basic.template.html.twig" %}
 
 {% block content %}
-    Home index
+    <h1>Home index</h1>
+
+    <div class="row justify-content-center">
+        {% if response is defined and response.message is defined %}
+            <div class="alert alert-info">{{ response.message }}</div>
+        {% endif %}
+
+        {% if logged_in %}
+            <div class="alert alter-info">Logged in as: {{ login_name }}</div>
+            <a class="btn btn-danger" href="/logout">Logout</a>
+        {% else %}
+            <div class="alert alter-warning">Login is required for using expenses.</div>
+            <a class="btn btn-success" href="/login">Login</a>
+        {% endif %}
+    </div>
 {% endblock %}

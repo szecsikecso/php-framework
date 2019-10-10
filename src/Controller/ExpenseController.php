@@ -22,6 +22,9 @@ class ExpenseController
         $this->expenseTwig->addExtension(new DebugExtension());
         $this->expenseService = new HandleExpense();
 
+        if (session_status() != PHP_SESSION_ACTIVE) {
+            session_start();
+        }
     }
 
     public function index()

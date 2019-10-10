@@ -34,7 +34,8 @@ if (isset($_SERVER['PATH_INFO'])) {
         if ($key == 1) {
             echo '<br><b>1</b><br>';
             if ($path_item == 'expense') {
-                if (isset($_SESSION)) {
+                session_start();
+                if (!isset($_SESSION['login_name'])) {
                     // User should be logged in to go on expense page(s)
                     $controller->handle401();
                 } else {
@@ -45,7 +46,7 @@ if (isset($_SERVER['PATH_INFO'])) {
                     }
                 }
             } else {
-                $controller->handle404();
+                $controller->handleOperation($path_item);
             }
         } else if ($key == 2 && !isset($path_split[3]))  {
             echo '<br><b>2</b><br>';

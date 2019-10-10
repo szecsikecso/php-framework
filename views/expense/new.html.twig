@@ -1,7 +1,8 @@
 {% extends "template/basic.template.html.twig" %}
 
 {% block content %}
-    {# New Expense #}
+    <h1>New expense</h1>
+
     {% if response is defined %}
         {% if response.success is defined %}
             <div class="success-message">Expense created!</div>
