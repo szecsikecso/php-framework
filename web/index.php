@@ -27,6 +27,7 @@ if (!empty($_SERVER['QUERY_STRING'])) {
 }
 
 if (isset($_SERVER['PATH_INFO'])) {
+
     $path = $_SERVER['PATH_INFO'];
     $path_split = explode('/', ltrim($path));
 
@@ -63,6 +64,10 @@ if (isset($_SERVER['PATH_INFO'])) {
     if ($_SERVER['REQUEST_METHOD'] != 'GET') {
         $controller->handle405();
     } else {
+        session_start();
+        unset($_SESSION['message']);
         $controller->index();
+
+        $entityHandler = new \Homework3\_Framework\EntityHandler();
     }
 }

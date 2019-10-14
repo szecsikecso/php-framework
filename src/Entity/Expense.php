@@ -4,8 +4,13 @@
 namespace Homework3\Entity;
 
 
-class Expense
+use Homework3\_Framework\DataOperationEntityTrait;
+use Homework3\_Framework\FrameworkEntity;
+
+class Expense implements FrameworkEntity
 {
+
+    use DataOperationEntityTrait;
 
     public const EXPENSE_TABLE = 'expense';
 
@@ -14,10 +19,15 @@ class Expense
     public const EXPENSE_FIELD_CURRENCY = 'currency';
     public const EXPENSE_FIELD_DESCRIPTION = 'description';
 
-    public function __construct()
-    {
+    public static $locatable = true;
+
+    public static function isLocatable(): bool{
+        return self::$locatable;
     }
 
+    /**
+     * @var int $id
+     */
     private $id;
 
     /** @var int $amount */
@@ -35,6 +45,10 @@ class Expense
 
     /** @var string $description */
     private $description;
+
+    public function __construct()
+    {
+    }
 
     /**
      * @return int

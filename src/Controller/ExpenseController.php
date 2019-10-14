@@ -4,6 +4,7 @@
 namespace Homework3\Controller;
 
 
+use Homework3\_Framework\MySQLOperationProvider;
 use Homework3\Entity\Expense;
 use Homework3\Service\HandleExpense;
 use Twig\Environment;
@@ -15,12 +16,17 @@ class ExpenseController
 
     private $expenseTwig;
     private $expenseService;
+    private $expenseProvider;
 
     public function __construct()
     {
         $this->expenseTwig = new Environment(new FilesystemLoader('../views'), ['debug' => true]);
         $this->expenseTwig->addExtension(new DebugExtension());
+
         $this->expenseService = new HandleExpense();
+
+        $expense = new Expense();
+        $this->expenseProvider = new MySQLOperationProvider($expense, Expense::class);
 
         if (session_status() != PHP_SESSION_ACTIVE) {
             session_start();
@@ -29,7 +35,8 @@ class ExpenseController
 
     public function index()
     {
-        $expenses = $this->expenseService->readAllExpense();
+        //$expenses = $this->expenseService->readAllExpense();
+        $expenses = $this->expenseProvider->readAll();
 
         echo $this->expenseTwig->render('expense/index.html.twig', ['expenses' => $expenses]);
     }
@@ -68,8 +75,16 @@ class ExpenseController
         }
     }
 
-    private function read($expense_id) {
-        $expense = $this->expenseService->readExpense($expense_id);
+    private function read(int $id) {
+        //$expense = $this->expenseService->readExpense($expense_id);
+        $expense = $this->expenseProvider->read($id);
+
+//        var_dump($expense->getConstants());
+//        var_dump($expense->getTableName());
+//        var_dump($expense->getFields());
+//        var_dump($expense->getData());
+//        var_dump($expense->getActualData());
+
         echo $this->expenseTwig->render('expense/read.html.twig', ['expense' => $expense]);
     }
 

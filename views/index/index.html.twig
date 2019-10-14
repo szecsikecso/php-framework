@@ -8,6 +8,9 @@
             <div class="alert alert-info">{{ response.message }}</div>
         {% endif %}
 
+        <a class="btn btn-link" href="/expense">Expense index</a>
+        <br>
+
         {% if logged_in %}
             <div class="alert alter-info">Logged in as: {{ login_name }}</div>
             <a class="btn btn-danger" href="/logout">Logout</a>

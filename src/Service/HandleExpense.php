@@ -4,6 +4,7 @@
 namespace Homework3\Service;
 
 
+use Homework3\_Framework\MySQLOperationProvider;
 use Homework3\Entity\CurrencyValue;
 use Homework3\Entity\Expense;
 
@@ -15,8 +16,13 @@ class HandleExpense
      */
     private $databaseConnection;
 
+    private $expenseProvider;
+
     public function __construct()
     {
+        $expense = new Expense();
+        $this->expenseProvider = new MySQLOperationProvider($expense, Expense::class);
+
         $pdo = new \PDO("mysql:dbname=mydb;host=localhost", "root", "");
         $pdo->setAttribute(\PDO::ATTR_CASE, \PDO::CASE_NATURAL);
         $this->databaseConnection = $pdo;
@@ -75,7 +81,23 @@ class HandleExpense
                 $this->databaseConnection->beginTransaction();
 
                 $currencyValue = $this->readCurrencyValue($currency);
-                $this->writeExpense($amount, $currencyValue, $description);
+
+                //$this->writeExpense($amount, $currencyValue, $description);
+
+                $amountInHuF = $amount;
+                $currency = 'HUF';
+                if ($currencyValue->getCurrency() != 'HUF') {
+                    $amountInHuF = $amount * $currencyValue->getValueInHuf();
+                    $currency = $currencyValue->getCurrency();
+                }
+
+                $expense = new Expense();
+                $expense->setAmount($amount);
+                $expense->setAmountInHuf($amountInHuF);
+                $expense->setCurrency($currency);
+                $expense->setDescription($description);
+
+                $this->expenseProvider->write($expense);
 
                 $response['success'] = true;
 

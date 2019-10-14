@@ -22,6 +22,7 @@ class IndexController
         if (session_status() != PHP_SESSION_ACTIVE) {
             session_start();
         }
+
         $loggedIn =  false;
         $loginName = '';
         if (isset($_SESSION) && isset($_SESSION['login_name']) && !empty($_SESSION['login_name'])) {

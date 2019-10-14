@@ -5,7 +5,8 @@
     "symfony/dependency-injection": "^4.3",
     "symfony/config": "^4.3",
     "ext-pdo": "*",
-    "twig/twig": "*"
+    "twig/twig": "*",
+    "ext-http": "*"
   },
   "autoload": {
     "psr-4": {

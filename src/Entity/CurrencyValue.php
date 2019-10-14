@@ -3,14 +3,29 @@
 
 namespace Homework3\Entity;
 
+use Homework3\_Framework\DataOperationEntityTrait;
+use Homework3\_Framework\FrameworkEntity;
 
-class CurrencyValue
+class CurrencyValue implements FrameworkEntity
 {
+
+    use DataOperationEntityTrait;
 
     public const CURRENCY_VALUE_TABLE = 'currency_value';
 
     public const CURRENCY_VALUE_FIELD_CURRENCY = 'currency';
     public const CURRENCY_VALUE_FIELD_VALUE_IN_HUF = 'value_in_huf';
+
+    public static $locatable = false;
+
+    public static function isLocatable(): bool {
+        return self::$locatable;
+    }
+
+    public function getActualData(): array
+    {
+        // TODO: Implement getActualData() method.
+    }
 
     private $currency = '';
 
@@ -57,7 +72,5 @@ class CurrencyValue
     {
         $this->valueInHuf = $valueInHuf;
     }
-
-
 
 }
