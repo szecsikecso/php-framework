@@ -15,7 +15,7 @@ class ExpenseController
 {
 
     private $expenseTwig;
-    private $expenseService;
+    //private $expenseService;
     private $expenseProvider;
 
     public function __construct()
@@ -23,7 +23,7 @@ class ExpenseController
         $this->expenseTwig = new Environment(new FilesystemLoader('../views'), ['debug' => true]);
         $this->expenseTwig->addExtension(new DebugExtension());
 
-        $this->expenseService = new HandleExpense();
+        //$this->expenseService = new HandleExpense();
 
         $expense = new Expense();
         $this->expenseProvider = new MySQLOperationProvider($expense, Expense::class);
@@ -68,7 +68,16 @@ class ExpenseController
             $currency = strip_tags($_POST['currency']);
             $description = strip_tags($_POST['description']);
 
-            $response = $this->expenseService->addExpense($amount, $currency, $description);
+            $expense = new Expense();
+            $expense->setAmount($amount);
+            $expense->setAmountInHuf($amount);
+            $expense->setCurrency($currency);
+            $expense->setDescription($description);
+
+            $this->expenseProvider->write($expense);
+            $response['success'] = true;
+
+            //$response = $this->expenseService->addExpense($amount, $currency, $description);
             echo $this->expenseTwig->render('expense/new.html.twig', ['response' => $response]);
         } else {
             echo $this->expenseTwig->render('expense/new.html.twig');
@@ -79,18 +88,13 @@ class ExpenseController
         //$expense = $this->expenseService->readExpense($expense_id);
         $expense = $this->expenseProvider->read($id);
 
-//        var_dump($expense->getConstants());
-//        var_dump($expense->getTableName());
-//        var_dump($expense->getFields());
-//        var_dump($expense->getData());
-//        var_dump($expense->getActualData());
-
         echo $this->expenseTwig->render('expense/read.html.twig', ['expense' => $expense]);
     }
 
-    private function update($expense_id) {
+    private function update(int $id) {
         /** @var Expense $expense */
-        $expense = $this->expenseService->readExpense($expense_id);
+        $expense = $this->expenseProvider->read($id);
+        //$expense = $this->expenseService->readExpense($expense_id);
         var_dump($expense);
         if (isset($_POST) && !empty($_POST)) {
             var_dump($_POST);
@@ -100,20 +104,26 @@ class ExpenseController
 
             $newExpense = clone($expense);
             $newExpense->setAmount($amount);
+            $newExpense->setAmountInHuf($amount);
             $newExpense->setCurrency($currency);
             $newExpense->setDescription($description);
 
-            $response = $this->expenseService->updateExpense($expense, $newExpense);
+            $this->expenseProvider->modify($newExpense);
+            $response['success'] = true;
+
+            //$response = $this->expenseService->updateExpense($expense, $newExpense);
             echo $this->expenseTwig->render('expense/update.html.twig', ['response' => $response, 'expense' => $expense]);
         } else {
             echo $this->expenseTwig->render('expense/update.html.twig', ['expense' => $expense]);
         }
     }
 
-    private function delete($expense_id) {
-        $response = $this->expenseService->deleteExpense($expense_id);
+    private function delete(int $id) {
+        //$response = $this->expenseService->deleteExpense($expense_id);
+        $response = ['success' => true];
+        $this->expenseProvider->delete($id);
 
-        $expenses = $this->expenseService->readAllExpense();
+        $expenses = $this->expenseProvider->readAll();
         echo $this->expenseTwig->render('expense/index.html.twig', ['response' => $response, 'expenses' => $expenses]);
     }
 

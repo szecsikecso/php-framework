@@ -34,13 +34,9 @@ class MySQLOperationProvider implements DataOperationProvider
 
     public function read(int $id)
     {
-
-
         $sql = "SELECT id, " . $this->generateSelectFieldList() . " FROM " . $this->entity->getTableName() .
             " WHERE " . 'id' . "=?" . " LIMIT 1";
         $statement = $this->databaseConnection->prepare($sql);
-
-        var_dump($sql);
 
         $message = $statement->execute([$id]);
         var_dump($statement->errorInfo());
@@ -54,8 +50,6 @@ class MySQLOperationProvider implements DataOperationProvider
         $sql = "SELECT id, " . $this->generateSelectFieldList() . " FROM " . $this->entity->getTableName();
         $statement = $this->databaseConnection->prepare($sql);
 
-        var_dump($sql);
-
         $message = $statement->execute([]);
         var_dump($statement->errorInfo());
         echo $message . " ";
@@ -65,12 +59,11 @@ class MySQLOperationProvider implements DataOperationProvider
 
     public function write(FrameworkEntity $entity)
     {
-        $field_list = implode(', ', $entity->getFields());
-
         $sql = "INSERT INTO " . $entity->getTableName() .
-            " ( " . $field_list . " ) VALUES (?,?,?,?)";
+            " ( " . $this->generateInsertFieldList() . " ) VALUES (?,?,?,?)";
+
         $statement = $this->databaseConnection->prepare($sql);
-        $message = $statement->execute([$entity->getData()]);
+        $message = $statement->execute($entity->getData());
         echo $this->databaseConnection->lastInsertId();
 
         echo $message . "\n";
@@ -78,13 +71,11 @@ class MySQLOperationProvider implements DataOperationProvider
 
     public function modify(FrameworkEntity $entity)
     {
-        $modify_field_list = implode('=?, ', $entity->getFields());
-
         $sql = "UPDATE " . $entity->getTableName() .
-            " SET " . $modify_field_list . "WHERE id=?";
+            " SET " . $this->generateUpdateFieldList() . "WHERE id=?";
         $statement = $this->databaseConnection->prepare($sql);
 
-        $data_with_id = array_merge($entity->getData(), $entity->getId());
+        $data_with_id = array_merge($entity->getData(), [$entity->getId()]);
         $message = $statement->execute($data_with_id);
 
         var_dump($statement->errorInfo());
@@ -94,7 +85,7 @@ class MySQLOperationProvider implements DataOperationProvider
 
     public function delete(int $id)
     {
-        $sql = "DELETE FROM " . $this->tableName . " WHERE id=?";
+        $sql = "DELETE FROM " . $this->entity->getTableName() . " WHERE id=?";
         $statement = $this->databaseConnection->prepare($sql);
 
         $message = $statement->execute([$id]);
@@ -112,6 +103,16 @@ class MySQLOperationProvider implements DataOperationProvider
             $field_list .= ', ';
         }
         return rtrim($field_list, ', ');
+    }
+
+    private function generateInsertFieldList() {
+        return implode(', ', $this->entity->getFields());
+    }
+
+    private function generateUpdateFieldList() {
+        $update_field_list = implode('=?, ', $this->entity->getFields());
+        $update_field_list .= '=? ';
+        return $update_field_list;
     }
 
 }
