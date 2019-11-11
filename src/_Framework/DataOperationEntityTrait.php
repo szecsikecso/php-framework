@@ -17,19 +17,9 @@ trait DataOperationEntityTrait
 
     /**
      * @return string
-     * @throws \ReflectionException
      */
     public function getTableName(): string {
-        foreach ($this->getConstants() as $constantKey =>  $constantValue) {
-            if (strpos($constantKey, '_TABLE') !== false) {
-                return $constantValue;
-            }
-        }
-
-        $exception = new \Homework3\_Framework\ExceptionHandler();
-        $exception->handle('Missing table name!');
-
-        return '';
+        return self::getMachineName();
     }
 
     /**

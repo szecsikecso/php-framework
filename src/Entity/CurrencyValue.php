@@ -11,7 +11,7 @@ class CurrencyValue implements FrameworkEntity
 
     use DataOperationEntityTrait;
 
-    public const CURRENCY_VALUE_TABLE = 'currency_value';
+    public const MACHINE_NAME = 'currency_value';
 
     public const CURRENCY_VALUE_FIELD_CURRENCY = 'currency';
     public const CURRENCY_VALUE_FIELD_VALUE_IN_HUF = 'value_in_huf';
@@ -20,11 +20,6 @@ class CurrencyValue implements FrameworkEntity
 
     public static function isLocatable(): bool {
         return self::$locatable;
-    }
-
-    public function getActualData(): array
-    {
-        // TODO: Implement getActualData() method.
     }
 
     private $currency = '';
@@ -71,6 +66,16 @@ class CurrencyValue implements FrameworkEntity
     public function setValueInHuf($valueInHuf): void
     {
         $this->valueInHuf = $valueInHuf;
+    }
+
+    public static function getMachineName(): string
+    {
+        return self::MACHINE_NAME;
+    }
+
+    public function getActualData(): array
+    {
+        return [];
     }
 
 }

@@ -15,59 +15,11 @@ $loader = new XmlFileLoader($containerBuilder,
 $loader->load('services.xml');
 $containerBuilder->compile();
 
-/** @var \Homework3\Sample\SampleService $sampleService */
+/** \Homework3\Sample\SampleService $sampleService */
 //$sampleService = $containerBuilder->get('sample_service');
 //$sampleParam = $containerBuilder->getParameter('sample_param');
 //echo $sampleService->sample(). "\n";
 //echo $sampleParam;
 
-$controller = new \Homework3\Controller\IndexController();
-if (!empty($_SERVER['QUERY_STRING'])) {
-    $controller->handle400();
-}
-
-if (isset($_SERVER['PATH_INFO'])) {
-
-    $path = $_SERVER['PATH_INFO'];
-    $path_split = explode('/', ltrim($path));
-
-    foreach ($path_split as $key => $path_item) {
-        if ($key == 1) {
-            echo '<br><b>1</b><br>';
-            if ($path_item == 'expense') {
-                session_start();
-                if (!isset($_SESSION['login_name'])) {
-                    // User should be logged in to go on expense page(s)
-                    $controller->handle401();
-                } else {
-                    $controller = new \Homework3\Controller\ExpenseController();
-
-                    if (!isset($path_split[2])){
-                        $controller->index();
-                    }
-                }
-            } else {
-                $controller->handleOperation($path_item);
-            }
-        } else if ($key == 2 && !isset($path_split[3]))  {
-            echo '<br><b>2</b><br>';
-            $controller->handleOperation($path_item);
-        } else if ($key == 3) {
-            echo '<br><b>3</b><br>';
-            $controller->handleOperation($path_split[2], $path_split[3]);
-        }
-    }
-
-} else {
-    $path_split = '/';
-
-    if ($_SERVER['REQUEST_METHOD'] != 'GET') {
-        $controller->handle405();
-    } else {
-        session_start();
-        unset($_SESSION['message']);
-        $controller->index();
-
-        $entityHandler = new \Homework3\_Framework\EntityHandler();
-    }
-}
+$framework = new \Homework3\_Framework\Framework(true);
+$framework->run();

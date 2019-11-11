@@ -9,10 +9,9 @@ use Homework3\_Framework\FrameworkEntity;
 
 class Expense implements FrameworkEntity
 {
-
     use DataOperationEntityTrait;
 
-    public const EXPENSE_TABLE = 'expense';
+    public const MACHINE_NAME = 'expense';
 
     public const EXPENSE_FIELD_AMOUNT = 'amount';
     public const EXPENSE_FIELD_AMOUNT_IN_HUF = 'amount_in_huf';
@@ -128,6 +127,11 @@ class Expense implements FrameworkEntity
     public function setId($id): void
     {
         $this->id = $id;
+    }
+
+    public static function getMachineName(): string
+    {
+        return self::MACHINE_NAME;
     }
 
 }

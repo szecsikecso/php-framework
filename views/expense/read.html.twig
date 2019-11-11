@@ -5,11 +5,13 @@
 
     {% if response is defined %}
         {% if response.success is defined %}
-            <div class="success-message">Expense deleted!</div>
+            <div class="success-message">Expense read!</div>
         {% else %}
             {{ dump(response) }}
         {% endif %}
     {% endif %}
+
+    {% set expense = entity %}
     <div class="row-container">
         <ul class="list-group">
             <li class="list-group-item">

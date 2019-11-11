@@ -6,18 +6,23 @@
     {% if operation is defined %}
         Or expense operation - {{ operation }}
     {% endif %}
-{#    {{ dump(expenses) }}#}
 
     {% if response is defined %}
         {% if response.success is defined %}
-            <div class="success-message">Expense deleted!</div>
-        {% else %}
-            {{ dump(response) }}
+            <div class="success-message">
+                {% if response.message is defined %}
+                    {{ response.message }}
+                 {% else %}
+                     {{ 'Success' }}
+                {% endif %}
+            </div>
         {% endif %}
     {% endif %}
     <div class="row-container">
+        <a class="btn btn-primary" href="/expense/{{ 'new' }}" >New</a>
+
         <ul class="list-group">
-            {% for expense in expenses %}
+            {% for expense in entities %}
                 <li class="list-group-item">
                     <div class="data">Amount: {{ expense.amount }}</div>
                     <div class="data">Amount in HUF: {{ expense.amountInHuf }}</div>

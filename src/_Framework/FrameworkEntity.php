@@ -6,6 +6,8 @@ namespace Homework3\_Framework;
 interface FrameworkEntity
 {
 
+    public static function getMachineName(): string;
+
     public static function isLocatable(): bool;
 
     public function getConstants(): array;

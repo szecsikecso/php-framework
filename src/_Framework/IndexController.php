@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Homework3\Controller;
+namespace Homework3\_Framework;
 
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
@@ -18,7 +18,7 @@ class IndexController
         $this->indexTwig->addExtension(new DebugExtension());
     }
 
-    public function index($message = '') {
+    public function indexAction($message = '') {
         if (session_status() != PHP_SESSION_ACTIVE) {
             session_start();
         }
@@ -46,19 +46,19 @@ class IndexController
         }
     }
 
-    public function handleOperation(string $operation, $id = 0) {
+    /*
+    public function handleAuthorization(string $operation) {
         if ($operation == 'login') {
             $this->login();
         }else if ( $operation == 'logout') {
             $this->logout();
         } else {
-            $this->handle404();
-            //echo $this->indexTwig->render('index/index.html.twig', ['operation' => $operation]);
+            $this->handle403('authorization error');
         }
     }
+    */
 
-    private function login() {
-        session_start();
+    public function loginAction() {
         $loggedIn = isset($_SESSION) && isset($_SESSION['login_name']) && !empty($_SESSION['login_name']);
 
         if (!$loggedIn) {
@@ -75,8 +75,7 @@ class IndexController
         }
     }
 
-    private function logout(){
-        session_start();
+    public function logoutAction(){
         session_destroy();
 
         session_start();
@@ -84,20 +83,24 @@ class IndexController
         header("Location:/");
     }
 
-    public function handle400() {
-        echo $this->indexTwig->render('index/error.html.twig', ['error_code' => 400]);
+    public function handle400(string $message = 'unknown error') {
+        echo $this->indexTwig->render('index/error.html.twig',
+            ['error_code' => 400, 'error_message' => $message]);
     }
 
-    public function handle401() {
-        echo $this->indexTwig->render('index/error.html.twig', ['error_code' => 401]);
+    public function handle401(string $message = 'unknown error') {
+        echo $this->indexTwig->render('index/error.html.twig',
+            ['error_code' => 401, 'error_message' => $message]);
     }
 
-    public function handle404() {
-        echo $this->indexTwig->render('index/error.html.twig', ['error_code' => 404]);
+    public function handle404(string $message = 'unknown error') {
+        echo $this->indexTwig->render('index/error.html.twig',
+            ['error_code' => 404, 'error_message' => $message]);
     }
 
-    public function handle405() {
-        echo $this->indexTwig->render('index/error.html.twig', ['error_code' => 405]);
+    public function handle405(string $message = 'unknown error') {
+        echo $this->indexTwig->render('index/error.html.twig',
+            ['error_code' => 405, 'error_message' => $message]);
     }
 
 }

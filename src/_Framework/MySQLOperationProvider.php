@@ -32,6 +32,17 @@ class MySQLOperationProvider implements DataOperationProvider
         $this->databaseConnection = $pdo;
     }
 
+    public function readAll(): array
+    {
+        $sql = "SELECT id, " . $this->generateSelectFieldList() . " FROM " . $this->entity->getTableName();
+        $statement = $this->databaseConnection->prepare($sql);
+
+        $message = $statement->execute([]);
+        //echo $message . "\n";
+
+        return $statement->fetchAll(\PDO::FETCH_CLASS, $this->className);
+    }
+
     public function read(int $id)
     {
         $sql = "SELECT id, " . $this->generateSelectFieldList() . " FROM " . $this->entity->getTableName() .
@@ -39,34 +50,19 @@ class MySQLOperationProvider implements DataOperationProvider
         $statement = $this->databaseConnection->prepare($sql);
 
         $message = $statement->execute([$id]);
-        var_dump($statement->errorInfo());
-        echo $message . " ";
+        //echo $message . "\n";
 
         return $statement->fetchObject($this->className);
-    }
-
-    public function readAll()
-    {
-        $sql = "SELECT id, " . $this->generateSelectFieldList() . " FROM " . $this->entity->getTableName();
-        $statement = $this->databaseConnection->prepare($sql);
-
-        $message = $statement->execute([]);
-        var_dump($statement->errorInfo());
-        echo $message . " ";
-
-        return $statement->fetchAll(\PDO::FETCH_CLASS, $this->className);
     }
 
     public function write(FrameworkEntity $entity)
     {
         $sql = "INSERT INTO " . $entity->getTableName() .
-            " ( " . $this->generateInsertFieldList() . " ) VALUES (?,?,?,?)";
+            " ( " . $this->generateInsertFieldList() . " ) VALUES " . $this->generateInsertValueList();
 
         $statement = $this->databaseConnection->prepare($sql);
         $message = $statement->execute($entity->getData());
-        echo $this->databaseConnection->lastInsertId();
-
-        echo $message . "\n";
+        //echo $message . "\n";
     }
 
     public function modify(FrameworkEntity $entity)
@@ -77,10 +73,7 @@ class MySQLOperationProvider implements DataOperationProvider
 
         $data_with_id = array_merge($entity->getData(), [$entity->getId()]);
         $message = $statement->execute($data_with_id);
-
-        var_dump($statement->errorInfo());
-
-        echo $message . "\n";
+        //echo $message . "\n";
     }
 
     public function delete(int $id)
@@ -89,8 +82,7 @@ class MySQLOperationProvider implements DataOperationProvider
         $statement = $this->databaseConnection->prepare($sql);
 
         $message = $statement->execute([$id]);
-        var_dump($statement->errorInfo());
-        echo $message . " ";
+        //echo $message . "\n";
     }
 
     private function generateSelectFieldList() {
@@ -107,6 +99,20 @@ class MySQLOperationProvider implements DataOperationProvider
 
     private function generateInsertFieldList() {
         return implode(', ', $this->entity->getFields());
+    }
+
+    private function generateInsertValueList() {
+        $fieldCount = count($this->entity->getFields());
+        $valueList = '(';
+        $i = $fieldCount;
+        while ($i > 0) {
+            $valueList .= '?,';
+            $i--;
+        }
+        $valueList = rtrim($valueList, ',');
+        $valueList .= ')';
+
+        return $valueList;
     }
 
     private function generateUpdateFieldList() {

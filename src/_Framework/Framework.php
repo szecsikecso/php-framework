@@ -8,15 +8,19 @@ class Framework
 
     private $routing;
 
-    private $entityHandler;
-
-    private $exceptionHandler;
-
-    public function __construct()
+    public function __construct(bool $hasSession)
     {
+        if ($hasSession) {
+            session_start();
+        }
         $this->routing = new RoutingProvider();
-        $this->entityHandler = new EntityHandler();
-        $this->exceptionHandler = new ExceptionHandler();
+    }
+
+    public function run() {
+        $this->routing->init();
+        /** @var ControllerHandler $handler */
+        $handler = $this->routing->getControllerHandler();
+        $handler->sendControllerResponse();
     }
 
 }
